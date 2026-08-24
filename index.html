@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionário Tasy - Avaliação</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f0f4f8;
+            padding: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+        }
+        .questao {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .pergunta {
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .alternativa {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+        .alternativa:hover {
+            background-color: #ecf0f1;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        label {
+            cursor: pointer;
+            color: #555;
+            line-height: 1.5;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #219653;
+        }
+        .resultado {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e8f4f8;
+            border-radius: 10px;
+            display: none;
+        }
+        .acerto {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .erro {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .correta {
+            color: #27ae60;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📋 Questionário - Sistema Tasy</h1>
+    <form id="formQuiz">
+
+        <!-- Questão 1 -->
+        <div class="questao">
+            <p class="pergunta">1. Qual ação o médico do Pronto Atendimento pode realizar na função CPOE? Selecione a resposta correta.</p>
+            <div class="alternativa">
+                <input type="radio" name="q1" id="q1a" value="a">
+                <label for="q1a">a) Prescrever medicamentos</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q1" id="q1b" value="b">
+                <label for="q1b">b) Administrar medicamentos</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q1" id="q1c" value="c">
+                <label for="q1c">c) Aplicar uma escala</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q1" id="q1d" value="d">
+                <label for="q1d">d) Gerenciar procedimentos</label>
+            </div>
+        </div>
+
+        <!-- Questão 2 -->
+        <div class="questao">
+            <p class="pergunta">2. Com relação ao Agendamento do procedimento cirúrgico, podemos afirmar:</p>
+            <div class="alternativa">
+                <input type="radio" name="q2" id="q2a" value="a">
+                <label for="q2a">a) O agendamento da cirurgia é realizado na função Gestão da Agenda Cirúrgica</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q2" id="q2b" value="b">
+                <label for="q2b">b) O agendamento da cirurgia é realizado na função Entrada Única de Pacientes</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q2" id="q2c" value="c">
+                <label for="q2c">c) O agendamento da cirurgia é realizado na função Prontuário Eletrônico Perioperatório – PEPO</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q2" id="q2d" value="d">
+                <label for="q2d">d) O agendamento da cirurgia é realizado na função Agenda de Consultas</label>
+            </div>
+        </div>
+
+        <!-- Questão 3 -->
+        <div class="questao">
+            <p class="pergunta">3. Quais das seguintes afirmações é verdadeira? Selecione a resposta correta.</p>
+            <div class="alternativa">
+                <input type="radio" name="q3" id="q3a" value="a">
+                <label for="q3a">a) O Tasy permite visualizar o status dos pacientes de emergência e registrar diferentes modelos de classificação de triagem.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q3" id="q3b" value="b">
+                <label for="q3b">b) A triagem dos paciente é registrada por meio da função Administração Eletrônica da Prescrição - ADEP</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q3" id="q3c" value="c">
+                <label for="q3c">c) O desfecho de alta é realizado pela equipe de Enfermagem.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q3" id="q3d" value="d">
+                <label for="q3d">d) Apenas os profissionais Médicos podem registrar evoluções ou anotações clínicas durante o atendimento de emergência.</label>
+            </div>
+        </div>
+
+        <!-- Questão 4 -->
+        <div class="questao">
+            <p class="pergunta">4. Quais dos seguintes itens no Prontuário Eletrônico do Paciente - PEP são comumente registrados pela enfermeira na internação?</p>
+            <div class="alternativa">
+                <input type="radio" name="q4" id="q4a" value="a">
+                <label for="q4a">a) Dispositivos, sinais vitais, plano de cuidados e notas clínicas.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q4" id="q4b" value="b">
+                <label for="q4b">b) Prescrição, Plano de Cuidados, Diagnóstico e CPOE.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q4" id="q4c" value="c">
+                <label for="q4c">c) Balanço hídrico (Admissões e Altas), Sinais vitais, Plano de Cuidados e CPOE.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q4" id="q4d" value="d">
+                <label for="q4d">d) Diagnóstico, CPOE, Receitas e Atestados.</label>
+            </div>
+        </div>
+
+        <!-- Questão 5 -->
+        <div class="questao">
+            <p class="pergunta">5. Quais dos seguintes itens no Prontuário Eletrônico do Paciente - PEP são comumente registrados pelo médico da internação?</p>
+            <div class="alternativa">
+                <input type="radio" name="q5" id="q5a" value="a">
+                <label for="q5a">a) Dispositivos, sinais vitais, plano de cuidados e balanço hídrico (internações e gastos).</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q5" id="q5b" value="b">
+                <label for="q5b">b) Prescrição, Plano de Cuidados, Diagnóstico e CPOE.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q5" id="q5c" value="c">
+                <label for="q5c">c) Balanço hídrico (Admissões e Altas), Sinais vitais, Plano de Cuidados e CPOE.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q5" id="q5d" value="d">
+                <label for="q5d">d) Diagnóstico, CPOE, Receitas, Atestados.</label>
+            </div>
+        </div>
+
+        <!-- Questão 6 -->
+        <div class="questao">
+            <p class="pergunta">6. Qual das seguintes funções proporciona a visualização consolidada de pacientes em área de internação por meio de cards, com seus respectivos leitos e informações dinâmicas para melhor controle e tomada de decisão no tratamento clínico?</p>
+            <div class="alternativa">
+                <input type="radio" name="q6" id="q6a" value="a">
+                <label for="q6a">a) Prontuário Eletrônico do Paciente - PEP</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q6" id="q6b" value="b">
+                <label for="q6b">b) Panorama Clínico</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q6" id="q6c" value="c">
+                <label for="q6c">c) CPOE</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q6" id="q6d" value="d">
+                <label for="q6d">d) Administração Eletrônica da Prescrição - ADEP</label>
+            </div>
+        </div>
+
+        <!-- Questão 7 -->
+        <div class="questao">
+            <p class="pergunta">7. Por meio de qual das seguintes funções do Tasy na plataforma HTML5 é possível realizar triagem e classificação?</p>
+            <div class="alternativa">
+                <input type="radio" name="q7" id="q7a" value="a">
+                <label for="q7a">a) Entrada Única de Pacientes</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q7" id="q7b" value="b">
+                <label for="q7b">b) Prontuário Eletrônico do Paciente - PEP</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q7" id="q7c" value="c">
+                <label for="q7c">c) CPOE</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q7" id="q7d" value="d">
+                <label for="q7d">d) Administração Eletrônica da Prescrição - ADEP</label>
+            </div>
+        </div>
+
+        <!-- Questão 8 -->
+        <div class="questao">
+            <p class="pergunta">8. Em relação à função Administração Eletrônica da Prescrição - ADEP, podemos afirmar que:</p>
+            <div class="alternativa">
+                <input type="radio" name="q8" id="q8a" value="a">
+                <label for="q8a">a) É possível acessar esta função através do item ADEP da função Prontuário Eletrônico do Paciente – PEP.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q8" id="q8b" value="b">
+                <label for="q8b">b) É usado principalmente por usuários médicos.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q8" id="q8c" value="c">
+                <label for="q8c">c) Permite prescrever e administrar soluções e medicamentos.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q8" id="q8d" value="d">
+                <label for="q8d">d) Permite realizar a triagem de enfermagem.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q8" id="q8e" value="e">
+                <label for="q8e">e) Permite aos usuários adicionar diagnósticos para os pacientes.</label>
+            </div>
+        </div>
+
+        <!-- Questão 9 -->
+        <div class="questao">
+            <p class="pergunta">9. Selecione a sequência correta para o fluxo ambulatorial.</p>
+            <div class="alternativa">
+                <input type="radio" name="q9" id="q9a" value="a">
+                <label for="q9a">a) Autorização de Seguro de Saúde – Agendamento de Consulta Médica – Avaliação Médica</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q9" id="q9b" value="b">
+                <label for="q9b">b) Agendamento de Consulta Médica – Avaliação Médica – Autorização de Seguro de Saúde</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q9" id="q9c" value="c">
+                <label for="q9c">c) Agendamento de consultas médicas – Fórmula médica – Entrega em farmácia</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q9" id="q9d" value="d">
+                <label for="q9d">d) Autorização de Seguro Saúde – Fórmula Médica – Alta do Paciente</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q9" id="q9e" value="e">
+                <label for="q9e">e) Agendamento de Consulta Médica – Autorização de Convênio – Avaliação Médica</label>
+            </div>
+        </div>
+
+        <!-- Questão 10 -->
+        <div class="questao">
+            <p class="pergunta">10. Qual afirmação a seguir é verdadeira?</p>
+            <div class="alternativa">
+                <input type="radio" name="q10" id="q10a" value="a">
+                <label for="q10a">a) A geração de um número de atendimento ambulatorial é obrigatória para que médicos e outros profissionais possam registrar dados no prontuário do paciente.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q10" id="q10b" value="b">
+                <label for="q10b">b) Não é necessário agendar uma consulta médica ambulatorial, pois o paciente pode ser atendido por ordem de chegada no Tasy.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q10" id="q10c" value="c">
+                <label for="q10c">c) Para consulta ambulatorial não é necessário a geração de um número de atendimento. O desfecho de alta é realizado pela equipe de Enfermagem.</label>
+            </div>
+            <div class="alternativa">
+                <input type="radio" name="q10" id="q10d" value="d">
+                <label for="q10d">d) Para consultas ambulatoriais não é necessário nenhum tipo de autorização do convênio do paciente.</label>
+            </div>
+        </div>
+
+        <button type="button" onclick="corrigirQuiz()">✅ Corrigir Respostas</button>
+    </form>
+
+    <!-- Área de Resultado -->
+    <div class="resultado" id="areaResultado">
+        <h2>📊 Resultado do Questionário</h2>
+        <p id="textoNota"></p>
+        <hr style="margin:15px 0;">
+        <div id="detalheRespostas"></div>
+    </div>
+
+<script>
+    // GABARITO DAS RESPOSTAS CORRETAS
+    const gabarito = {
+        q1: 'a',
+        q2: 'a',
+        q3: 'a',
+        q4: 'a',
+        q5: 'b',
+        q6: 'b',
+        q7: 'a',
+        q8: 'a',
+        q9: 'a',
+        q10: 'a'
+    };
+
+    const nomesQuestoes = {
+        q1: 'Questão 1',
+        q2: 'Questão 2',
+        q3: 'Questão 3',
+        q4: 'Questão 4',
+        q5: 'Questão 5',
+        q6: 'Questão 6',
+        q7: 'Questão 7',
+        q8: 'Questão 8',
+        q9: 'Questão 9',
+        q10: 'Questão 10'
+    };
+
+    function corrigirQuiz() {
+        let acertos = 0;
+        let total = Object.keys(gabarito).length;
+        let detalheHTML = '';
+
+        for (let [chave, respostaCorreta] of Object.entries(gabarito)) {
+            const opcaoSelecionada = document.querySelector(`input[name="${chave}"]:checked`);
+            if (!opcaoSelecionada) {
+                detalheHTML += `<p>⚠️ ${nomesQuestoes[chave]}: <span style="color:orange">Não respondida</span> — Correta: <span class="correta">${respostaCorreta.toUpperCase()}</span></p>`;
+                continue;
+            }
+
+            if (opcaoSelecionada.value === respostaCorreta) {
+                acertos++;
+                detalheHTML += `<p>✅ ${nomesQuestoes[chave]}: <span class="acerto">Correta!</span></p>`;
+            } else {
+                detalheHTML += `<p>❌ ${nomesQuestoes[chave]}: <span class="erro">Você marcou ${opcaoSelecionada.value.toUpperCase()}</span> — Correta: <span class="correta">${respostaCorreta.toUpperCase()}</span></p>`;
+            }
+        }
+
+        const nota = ((acertos / total) * 10).toFixed(1);
+        document.getElementById('textoNota').innerHTML = `<strong>Nota: ${nota}/10 — ${acertos} de ${total} acertos</strong>`;
+        document.getElementById('detalheRespostas').innerHTML = detalheHTML;
+        document.getElementById('areaResultado').style.display = 'block';
+        window.scrollTo({ top: document.getElementById('areaResultado').offsetTop, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>

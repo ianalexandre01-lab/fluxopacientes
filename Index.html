@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist de Compras Mensais</title>
+    <!-- Biblioteca para exportar para Excel -->
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <!-- Biblioteca para exportar para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #219653;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #d68910;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .total-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .total-display {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .total-value {
+            color: #27ae60;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 25px;
+        }
+        
+        .category {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .category:hover {
+            transform: translateY(-5px);
+        }
+        
+        .category-header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .category-total {
+            font-weight: 600;
+            font-size: 1.1rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+        
+        .items-list {
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            gap: 10px;
+        }
+        
+        .item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .item-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .item-name {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .item-unit {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .quantity-input-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .quantity-input {
+            width: 80px;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            text-align: right;
+        }
+        
+        .unit-select {
+            width: 70px;
+            padding: 8px 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            background-color: white;
+        }
+        
+        .price-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .price-input {
+            width: 120px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            text-align: right;
+        }
+        
+        .price-input:focus, 
+        .quantity-input:focus,
+        .unit-select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .item-value {
+            font-weight: 600;
+            font-size: 1rem;
+            text-align: right;
+            color: #2c3e50;
+            padding-right: 10px;
+        }
+        
+        .unit-price {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            text-align: right;
+            padding-right: 10px;
+        }
+        
+        .notes-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .notes-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .notes-textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            resize: vertical;
+        }
+        
+        .notes-textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .item-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+        
+        .item-header div {
+            padding: 0 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .item {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .item-header {
+                display: none;
+            }
+            
+            .item-info, 
+            .quantity-controls, 
+            .price-controls, 
+            .item-value {
+                width: 100%;
+            }
+            
+            .quantity-input-group {
+                width: 100%;
+            }
+            
+            .quantity-input, 
+            .unit-select, 
+            .price-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📋 Checklist de Compras Mensais</h1>
+        <p class="subtitle">Para homem de 32 anos - Edite quantidades, preços e unidades de medida</p>
+    </header>
+
+    <div class="controls">
+        <button class="btn btn-primary" onclick="calculateTotals()">
+            <span>🔄</span> Calcular Totais
+        </button>
+        <button class="btn btn-success" onclick="exportToExcel()">
+            <span>📊</span> Exportar para Excel
+        </button>
+        <button class="btn btn-warning" onclick="exportToPDF()">
+            <span>📄</span> Exportar para PDF
+        </button>
+        <button class="btn btn-danger" onclick="clearAll()">
+            <span>🗑️</span> Limpar Tudo
+        </button>
+        <button class="btn btn-primary" onclick="saveChecklist()">
+            <span>💾</span> Salvar Checklist
+        </button>
+    </div>
+
+    <div class="total-container">
+        <div>
+            <h2>Total Geral Estimado</h2>
+            <p>Valor total de todas as categorias (inclui apenas itens marcados)</p>
+        </div>
+        <div class="total-display">
+            R$ <span id="totalValue" class="total-value">0,00</span>
+        </div>
+    </div>
+
+    <div class="container" id="checklistContainer">
+        <!-- Categorias serão inseridas aqui via JavaScript -->
+    </div>
+
+    <div class="notes-section">
+        <h3 class="notes-title">📝 Observações e Notas</h3>
+        <textarea class="notes-textarea" id="notes" placeholder="Adicione observações sobre suas compras, promoções encontradas, lembretes importantes..."></textarea>
+    </div>
+
+    <div class="footer">
+        <p>Checklist desenvolvido para planejamento mensal de compras | Edite quantidades, unidades e preços conforme necessário</p>
+    </div>
+
+    <!-- Modal para limpar tudo -->
+    <div id="clearModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">⚠️ Limpar Checklist</h3>
+            <p>Tem certeza que deseja limpar todos os dados do checklist? Esta ação não pode ser desfeita.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" onclick="confirmClear()">Sim, Limpar Tudo</button>
+                <button class="btn btn-primary" onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Unidades de medida disponíveis
+        const units = [
+            { value: 'kg', label: 'kg', type: 'peso' },
+            { value: 'g', label: 'g', type: 'peso' },
+            { value: 'un', label: 'un', type: 'unidade' },
+            { value: 'cx', label: 'cx', type: 'caixa' },
+            { value: 'L', label: 'L', type: 'volume' },
+            { value: 'ml', label: 'ml', type: 'volume' },
+            { value: 'pac', label: 'pacote', type: 'embalagem' },
+            { value: 'lat', label: 'lata', type: 'embalagem' },
+            { value: 'fr', label: 'frasco', type: 'embalagem' },
+            { value: 'rol', label: 'rolo', type: 'embalagem' }
+        ];
+
+        // Dados do checklist
+        const checklistData = {
+            categories: [
+                {
+                    id: 'carnes',
+                    title: '🥩 Carnes (Mensal)',
+                    items: [
+                        { id: 'carne1', name: 'Peito de Frango', quantity: 2, unit: 'kg', defaultQuantity: 2, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'carne2', name: 'Coxa/Sobrecoxa de Frango', quantity: 1, unit: 'kg', defaultQuantity: 1, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'carne3', name: 'Carne para Cozinhar', quantity: 1.5, unit: 'kg', defaultQuantity: 1.5, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'carne4', name: 'Carne para Grelhar', quantity: 1, unit: 'kg', defaultQuantity: 1, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'carne5', name: 'Carne Moída', quantity: 0.5, unit: 'kg', defaultQuantity: 0.5, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'carne6', name: 'Peixe (filé ou sardinha)', quantity: 1, unit: 'kg', defaultQuantity: 1, defaultUnit: 'kg', price: 0, checked: false }
+                    ]
+                },
+                {
+                    id: 'sexta-basica',
+                    title: '🛒 Sexta Básica',
+                    items: [
+                        { id: 'sb1', name: 'Arroz', quantity: 5, unit: 'kg', defaultQuantity: 5, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'sb2', name: 'Feijão', quantity: 2, unit: 'kg', defaultQuantity: 2, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'sb3', name: 'Macarrão', quantity: 1, unit: 'kg', defaultQuantity: 1, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'sb4', name: 'Farinha de Trigo', quantity: 1, unit: 'kg', defaultQuantity: 1, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'sb5', name: 'Açúcar', quantity: 1, unit: 'kg', defaultQuantity: 1, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'sb6', name: 'Óleo de Soja/Girassol', quantity: 0.9, unit: 'L', defaultQuantity: 0.9, defaultUnit: 'L', price: 0, checked: false },
+                        { id: 'sb7', name: 'Café em Pó', quantity: 0.5, unit: 'kg', defaultQuantity: 0.5, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'sb8', name: 'Molho de Tomate', quantity: 2, unit: 'lat', defaultQuantity: 2, defaultUnit: 'lat', price: 0, checked: false },
+                        { id: 'sb9', name: 'Milho/Ervilha em Lata', quantity: 2, unit: 'lat', defaultQuantity: 2, defaultUnit: 'lat', price: 0, checked: false }
+                    ]
+                },
+                {
+                    id: 'higiene',
+                    title: '🧴 Higiene Pessoal',
+                    items: [
+                        { id: 'hig1', name: 'Sabonete', quantity: 5, unit: 'un', defaultQuantity: 5, defaultUnit: 'un', price: 0, checked: false },
+                        { id: 'hig2', name: 'Shampoo', quantity: 1, unit: 'fr', defaultQuantity: 1, defaultUnit: 'fr', price: 0, checked: false },
+                        { id: 'hig3', name: 'Condicionador', quantity: 1, unit: 'fr', defaultQuantity: 1, defaultUnit: 'fr', price: 0, checked: false },
+                        { id: 'hig4', name: 'Pasta de Dente', quantity: 2, unit: 'un', defaultQuantity: 2, defaultUnit: 'un', price: 0, checked: false },
+                        { id: 'hig5', name: 'Escova de Dentes', quantity: 1, unit: 'un', defaultQuantity: 1, defaultUnit: 'un', price: 0, checked: false },
+                        { id: 'hig6', name: 'Desodorante', quantity: 1, unit: 'un', defaultQuantity: 1, defaultUnit: 'un', price: 0, checked: false },
+                        { id: 'hig7', name: 'Papel Higiênico', quantity: 1, unit: 'pac', defaultQuantity: 1, defaultUnit: 'pac', price: 0, checked: false },
+                        { id: 'hig8', name: 'Lâminas de Barbear', quantity: 1, unit: 'pac', defaultQuantity: 1, defaultUnit: 'pac', price: 0, checked: false }
+                    ]
+                },
+                {
+                    id: 'limpeza',
+                    title: '🧽 Limpeza Doméstica',
+                    items: [
+                        { id: 'limp1', name: 'Detergente Líquido (roupas)', quantity: 2, unit: 'kg', defaultQuantity: 2, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'limp2', name: 'Amaciante', quantity: 1, unit: 'L', defaultQuantity: 1, defaultUnit: 'L', price: 0, checked: false },
+                        { id: 'limp3', name: 'Detergente (louça)', quantity: 1, unit: 'fr', defaultQuantity: 1, defaultUnit: 'fr', price: 0, checked: false },
+                        { id: 'limp4', name: 'Água Sanitária', quantity: 1.5, unit: 'L', defaultQuantity: 1.5, defaultUnit: 'L', price: 0, checked: false },
+                        { id: 'limp5', name: 'Desinfetante', quantity: 0.5, unit: 'L', defaultQuantity: 0.5, defaultUnit: 'L', price: 0, checked: false },
+                        { id: 'limp6', name: 'Multiuso (limpa-vidros)', quantity: 0.5, unit: 'L', defaultQuantity: 0.5, defaultUnit: 'L', price: 0, checked: false },
+                        { id: 'limp7', name: 'Sacos de Lixo', quantity: 2, unit: 'rol', defaultQuantity: 2, defaultUnit: 'rol', price: 0, checked: false },
+                        { id: 'limp8', name: 'Esponjas (aço e pia)', quantity: 1, unit: 'pac', defaultQuantity: 1, defaultUnit: 'pac', price: 0, checked: false }
+                    ]
+                },
+                {
+                    id: 'flv',
+                    title: '🥦 FLV (Frutas, Legumes, Verduras)',
+                    items: [
+                        { id: 'flv1', name: 'Alho e Cebola', quantity: 1.5, unit: 'kg', defaultQuantity: 1.5, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'flv2', name: 'Tomate', quantity: 2, unit: 'kg', defaultQuantity: 2, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'flv3', name: 'Batata/Cenoura', quantity: 2, unit: 'kg', defaultQuantity: 2, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'flv4', name: 'Folhas (alface, rúcula)', quantity: 4, unit: 'un', defaultQuantity: 4, defaultUnit: 'un', price: 0, checked: false },
+                        { id: 'flv5', name: 'Frutas (banana, maçã, laranja)', quantity: 5, unit: 'kg', defaultQuantity: 5, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'flv6', name: 'Pimentão/Abobrinha', quantity: 1, unit: 'kg', defaultQuantity: 1, defaultUnit: 'kg', price: 0, checked: false }
+                    ]
+                },
+                {
+                    id: 'laticinios',
+                    title: '🥛 Laticínios e Outros',
+                    items: [
+                        { id: 'lat1', name: 'Leite UHT', quantity: 8, unit: 'L', defaultQuantity: 8, defaultUnit: 'L', price: 0, checked: false },
+                        { id: 'lat2', name: 'Ovos', quantity: 30, unit: 'un', defaultQuantity: 30, defaultUnit: 'un', price: 0, checked: false },
+                        { id: 'lat3', name: 'Queijo', quantity: 0.5, unit: 'kg', defaultQuantity: 0.5, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'lat4', name: 'Manteiga/Margarina', quantity: 0.25, unit: 'kg', defaultQuantity: 0.25, defaultUnit: 'kg', price: 0, checked: false },
+                        { id: 'lat5', name: 'Pão (semanal)', quantity: 4, unit: 'un', defaultQuantity: 4, defaultUnit: 'un', price: 0, checked: false },
+                        { id: 'lat6', name: 'Temperos (sal, pimenta)', quantity: 0.5, unit: 'kg', defaultQuantity: 0.5, defaultUnit: 'kg', price: 0, checked: false }
+                    ]
+                }
+            ]
+        };
+
+        // Carregar dados salvos do localStorage
+        function loadSavedData() {
+            const saved = localStorage.getItem('shoppingChecklist');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                parsed.categories.forEach((cat, catIndex) => {
+                    cat.items.forEach((item, itemIndex) => {
+                        if (checklistData.categories[catIndex] && checklistData.categories[catIndex].items[itemIndex]) {
+                            checklistData.categories[catIndex].items[itemIndex].quantity = item.quantity;
+                            checklistData.categories[catIndex].items[itemIndex].unit = item.unit;
+                            checklistData.categories[catIndex].items[itemIndex].price = item.price;
+                            checklistData.categories[catIndex].items[itemIndex].checked = item.checked;
+                        }
+                    });
+                });
+                
+                const savedNotes = localStorage.getItem('shoppingChecklistNotes');
+                if (savedNotes) {
+                    document.getElementById('notes').value = savedNotes;
+                }
+            }
+        }
+
+        // Salvar dados no localStorage
+        function saveChecklist() {
+            localStorage.setItem('shoppingChecklist', JSON.stringify(checklistData));
+            localStorage.setItem('shoppingChecklistNotes', document.getElementById('notes').value);
+            
+            // Feedback visual
+            const btn = event.target.closest('.btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span>✅</span> Checklist Salvo!';
+            btn.style.backgroundColor = '#27ae60';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.backgroundColor = '';
+            }, 2000);
+        }
+
+        // Renderizar o checklist
+        function renderChecklist() {
+            const container = document.getElementById('checklistContainer');
+            container.innerHTML = '';
+            
+            checklistData.categories.forEach(category => {
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'category';
+                categoryElement.id = `category-${category.id}`;
+                
+                // Calcular total da categoria
+                let categoryTotal = 0;
+                category.items.forEach(item => {
+                    if (item.checked) {
+                        categoryTotal += parseFloat(item.price) || 0;
+                    }
+                });
+                
+                categoryElement.innerHTML = `
+                    <div class="category-header">
+                        <div class="category-title">${category.title}</div>
+                        <div class="category-total">R$ ${categoryTotal.toFixed(2)}</div>
+                    </div>
+                    <div class="item-header">
+                        <div>Produto</div>
+                        <div>Quantidade</div>
+                        <div>Preço</div>
+                        <div>Total</div>
+                    </div>
+                    <div class="items-list" id="items-${category.id}">
+                        ${category.items.map(item => {
+                            const itemTotal = (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0);
+                            const unitPrice = parseFloat(item.price) || 0;
+                            
+                            return `
+                                <div class="item">
+                                    <div class="item-info">
+                                        <input type="checkbox" 
+                                               class="item-checkbox" 
+                                               id="check-${item.id}"
+                                               ${item.checked ? 'checked' : ''}
+                                               onchange="toggleItem('${category.id}', '${item.id}')">
+                                        <div>
+                                            <div class="item-name">${item.name}</div>
+                                            <div class="item-unit">Unidade: ${getUnitLabel(item.unit)}</div>
+                                        </div>
+                                    </div>
+                                    <div class="quantity-controls">
+                                        <div class="quantity-input-group">
+                                            <input type="number" 
+                                                   class="quantity-input" 
+                                                   id="qty-${item.id}"
+                                                   value="${item.quantity || ''}"
+                                                   placeholder="0"
+                                                   step="0.1"
+                                                   min="0"
+                                                   onchange="updateQuantity('${category.id}', '${item.id}', this.value)">
+                                            <select class="unit-select" 
+                                                    id="unit-${item.id}"
+                                                    onchange="updateUnit('${category.id}', '${item.id}', this.value)">
+                                                ${units.map(unit => 
+                                                    `<option value="${unit.value}" ${item.unit === unit.value ? 'selected' : ''}>${unit.label}</option>`
+                                                ).join('')}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="price-controls">
+                                        <input type="number" 
+                                               class="price-input" 
+                                               id="price-${item.id}"
+                                               value="${item.price || ''}"
+                                               placeholder="0,00"
+                                               step="0.01"
+                                               min="0"
+                                               onchange="updatePrice('${category.id}', '${item.id}', this.value)">
+                                        <div class="unit-price">Preço/${getUnitLabel(item.unit)}</div>
+                                    </div>
+                                    <div>
+                                        <div class="item-value">R$ ${itemTotal.toFixed(2)}</div>
+                                        <div class="unit-price">${item.quantity || 0} ${getUnitLabel(item.unit)} × R$ ${unitPrice.toFixed(2)}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(categoryElement);
+            });
+            
+            calculateTotals();
+        }
+
+        // Obter label da unidade
+        function getUnitLabel(unitValue) {
+            const unit = units.find(u => u.value === unitValue);
+            return unit ? unit.label : unitValue;
+        }
+
+        // Alternar item (marcar/desmarcar)
+        function toggleItem(categoryId, itemId) {
+            const category = checklistData.categories.find(c => c.id === categoryId);
+            if (category) {
+                const item = category.items.find(i => i.id === itemId);
+                if (item) {
+                    item.checked = !item.checked;
+                    saveChecklist();
+                    renderChecklist();
+                }
+            }
+        }
+
+        // Atualizar quantidade do item
+        function updateQuantity(categoryId, itemId, value) {
+            const category = checklistData.categories.find(c => c.id === categoryId);
+            if (category) {
+                const item = category.items.find(i => i.id === itemId);
+                if (item) {
+                    item.quantity = parseFloat(value) || 0;
+                    saveChecklist();
+                    renderChecklist();
+                }
+            }
+        }
+
+        // Atualizar unidade do item
+        function updateUnit(categoryId, itemId, value) {
+            const category = checklistData.categories.find(c => c.id === categoryId);
+            if (category) {
+                const item = category.items.find(i => i.id === itemId);
+                if (item) {
+                    item.unit = value;
+                    saveChecklist();
+                    renderChecklist();
+                }
+            }
+        }
+
+        // Atualizar preço unitário do item
+        function updatePrice(categoryId, itemId, value) {
+            const category = checklistData.categories.find(c => c.id === categoryId);
+            if (category) {
+                const item = category.items.find(i => i.id === itemId);
+                if (item) {
+                    item.price = parseFloat(value) || 0;
+                    saveChecklist();
+                    renderChecklist();
+                }
+            }
+        }
+
+        // Calcular totais
+        function calculateTotals() {
+            let grandTotal = 0;
+            
+            checklistData.categories.forEach(category => {
+                let categoryTotal = 0;
+                category.items.forEach(item => {
+                    if (item.checked) {
+                        const itemTotal = (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0);
+                        categoryTotal += itemTotal;
+                    }
+                });
+                grandTotal += categoryTotal;
+                
+                // Atualizar total da categoria
+                const categoryElement = document.querySelector(`#category-${category.id} .category-total`);
+                if (categoryElement) {
+                    categoryElement.textContent = `R$ ${categoryTotal.toFixed(2)}`;
+                }
+            });
+            
+            // Atualizar total geral
+            document.getElementById('totalValue').textContent = grandTotal.toFixed(2);
+            
+            // Feedback visual
+            const btn = event?.target?.closest('.btn');
+            if (btn) {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span>✅</span> Totais Calculados!';
+                btn.style.backgroundColor = '#27ae60';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.backgroundColor = '';
+                }, 1500);
+            }
+        }
+
+        // Exportar para Excel
+        function exportToExcel() {
+            // Preparar dados para exportação
+            const exportData = [];
+            
+            exportData.push(['CHECKLIST DE COMPRAS MENSAL']);
+            exportData.push(['Para homem de 32 anos']);
+            exportData.push(['Exportado em:', new Date().toLocaleString('pt-BR')]);
+            exportData.push([]);
+            
+            checklistData.categories.forEach(category => {
+                exportData.push([`CATEGORIA: ${category.title}`]);
+                exportData.push(['Item', 'Quantidade', 'Unidade', 'Preço Unitário (R$)', 'Total Item (R$)', 'Comprado?']);
+                
+                let categoryTotal = 0;
+                
+                category.items.forEach(item => {
+                    const itemTotal = (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0);
+                    if (item.checked) categoryTotal += itemTotal;
+                    
+                    exportData.push([
+                        item.name,
+                        item.quantity || 0,
+                        getUnitLabel(item.unit),
+                        parseFloat(item.price) || 0,
+                        itemTotal.toFixed(2),
+                        item.checked ? 'Sim' : 'Não'
+                    ]);
+                });
+                
+                exportData.push(['', '', '', 'Total da Categoria:', `R$ ${categoryTotal.toFixed(2)}`, '']);
+                exportData.push([]); // Linha em branco
+            });
+            
+            // Adicionar total geral
+            const grandTotal = checklistData.categories.reduce((total, category) => {
+                return total + category.items
+                    .filter(item => item.checked)
+                    .reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0)), 0);
+            }, 0);
+            
+            exportData.push(['TOTAL GERAL ESTIMADO:', '', '', '', `R$ ${grandTotal.toFixed(2)}`, '']);
+            
+            // Adicionar observações
+            const notes = document.getElementById('notes').value;
+            if (notes) {
+                exportData.push([]);
+                exportData.push(['OBSERVAÇÕES:']);
+                exportData.push([notes]);
+            }
+            
+            // Criar planilha
+            const ws = XLSX.utils.aoa_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Checklist Compras");
+            
+            // Gerar nome
